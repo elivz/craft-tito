@@ -11,7 +11,7 @@
 namespace elivz\tito\fields;
 
 use elivz\tito\Tito;
-use elivz\tito\assetbundles\titoeventfield\TitoEventFieldAsset;
+use elivz\tito\models\TitoEvent as EventModel;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -75,11 +75,30 @@ class TitoEvent extends Field
     /**
      * @inheritdoc
      */
+    public function normalizeValue($value, ElementInterface $element = null)
+    {
+        $model = new EventModel($value);
+        return $model;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function serializeValue($value, ElementInterface $element = null)
+    {
+        // If the object explicitly defines its savable value, use that
+        if ($value instanceof EventModel) {
+            return $value->eventId;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getInputHtml($value, ElementInterface $element = null): string
     {
-        // Register our asset bundle
-        Craft::$app->getView()->registerAssetBundle(TitoEventFieldAsset::class);
-
         // Get our id and namespace
         $id = Craft::$app->getView()->formatInputId($this->handle);
         $namespacedId = Craft::$app->getView()->namespaceInputId($id);
@@ -97,7 +116,7 @@ class TitoEvent extends Field
             'tito/_components/fields/TitoEvent_input',
             [
                 'name' => $this->handle,
-                'value' => $value,
+                'value' => $value['eventId'],
                 'options' => $options,
                 'field' => $this,
                 'id' => $id,

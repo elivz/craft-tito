@@ -14,6 +14,8 @@ use elivz\tito\Tito;
 
 use Craft;
 use craft\base\Component;
+use craft\helpers\StringHelper;
+use craft\i18n\Locale;
 use \GuzzleHttp\Client;
 
 /**
@@ -72,23 +74,33 @@ class Api extends Component
     }
 
     /**
-     * Normalize data for an event
+     * Normalize data for an event or release
      * 
-     * @param array $event The raw event data from Tito's API
+     * @param array $item The raw data from Tito's API
      * 
      * @return array
      */
-    private function _formatEvent($event, $removeHidden = true)
+    private function _formatData($item, $removeHidden = true)
     {
-        $data = array_merge(
-            [
-                'id' => $event['id'],
-                'url' => $this->_eventUrl($event['id']),
-            ],
-            $event['attributes']
-        );
+        $data = [
+            'id' => $item['id'],
+            'url' => $this->_eventUrl($item['id']),
+        ];
 
-        if ($removeHidden && ($data['private'] ||!$data['live'])) {
+        foreach ($item['attributes'] as $key => $value) {
+            $camelKey = StringHelper::camelCase($key);
+            if (in_array($camelKey, ['startDate', 'endDate']) || $camelKey === 'startAt') {
+                $value = new \DateTime($value);
+            }
+            $data[$camelKey] = $value;
+        }
+
+        if ($removeHidden && ((isset($data['private']) && $data['private'] === true)  
+            || (isset($data['live']) && $data['live'] === false) 
+            || (isset($data['archived']) && $data['archived'] === true) 
+            || (isset($data['secret']) && $data['secret'] === true) 
+            || (isset($data['state']) && $data['state'] !== 'on_sale')            )
+        ) {
             return false;
         }
 
@@ -108,11 +120,11 @@ class Api extends Component
         $client = $this->_getApiClient();
 
         $response = $client->get('events');
-        $events = json_decode($response->getBody()->getContents(), true);
-        $events = array_filter(array_map([$this, '_formatEvent'], $events['data']));
+        $response = json_decode($response->getBody()->getContents(), true);
+        $events = array_filter(array_map([$this, '_formatData'], $response['data']));
         usort(
             $events, function ($a, $b) {
-                return strtotime($a['start-date']) - strtotime($b['start-date']);
+                return $a['startDate'] > $b['startDate'] ? 1 : -1;
             }
         );
 
@@ -126,10 +138,14 @@ class Api extends Component
      */
     public function eventTitles()
     {
+
+        $formatter = Craft::$app->getFormatter();
+
         $events = $this->events();
         $events = array_reduce(
-            $events, function ($result, $event) {
-                $result[$event['id']] = $event['title'] . ' (' . $event['start-date'] . ')';
+            $events, function ($result, $event) use ($formatter) {
+                $date = $formatter->asDate($event['startDate'], Locale::LENGTH_SHORT);
+                $result[$event['id']] = $event['title'] . ' (' . $date . ')';
                 return $result;
             }, []
         );
@@ -142,13 +158,17 @@ class Api extends Component
      * 
      * @return array
      */
-    public function event()
+    public function event($eventId)
     {
         $client = $this->_getApiClient();
 
-        $response = $client->get('event');
-        $event = json_decode($response->getBody()->getContents(), true);
-        $event = $this->_formatEvent($event['data'], false);
+        $response = $client->get($eventId . '?include=releases');
+        $response = json_decode($response->getBody()->getContents(), true);
+        $event = $this->_formatData($response['data'], false);
+
+        if (!empty($response['included'])) {
+            $event['releases'] = array_filter(array_map([$this, '_formatData'], $response['included']));
+        }
 
         return $event;
     }

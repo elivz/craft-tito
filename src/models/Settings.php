@@ -29,6 +29,10 @@ class Settings extends Model
      * @var string
      */
     public $apiToken = '';
+    
+    /**
+     * @var string
+     */
     public $accountSlug = '';
 
     // Public Methods
