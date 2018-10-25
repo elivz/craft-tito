@@ -11,6 +11,7 @@
 namespace elivz\tito\fields;
 
 use elivz\tito\Tito;
+use elivz\tito\assetbundles\titoeventfield\TitoEventFieldAsset;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -18,6 +19,7 @@ use craft\base\Field;
 use craft\helpers\Db;
 use yii\db\Schema;
 use craft\helpers\Json;
+use craft\web\assets\selectize\SelectizeAsset;
 
 /**
  * @author  Eli Van Zoeren
@@ -56,7 +58,7 @@ class TitoEvent extends Field
         $rules = parent::rules();
         $rules = array_merge(
             $rules, [
-            ['eventId', 'integer'],
+            ['eventId', 'string'],
             ]
         );
         return $rules;
@@ -67,23 +69,7 @@ class TitoEvent extends Field
      */
     public function getContentColumnType(): string
     {
-        return Schema::TYPE_INTEGER;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function normalizeValue($value, ElementInterface $element = null)
-    {
-        return $value;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function serializeValue($value, ElementInterface $element = null)
-    {
-        return parent::serializeValue($value, $element);
+        return Schema::TYPE_STRING;
     }
 
     /**
@@ -91,19 +77,20 @@ class TitoEvent extends Field
      */
     public function getInputHtml($value, ElementInterface $element = null): string
     {
+        // Register our asset bundle
+        Craft::$app->getView()->registerAssetBundle(TitoEventFieldAsset::class);
+
         // Get our id and namespace
         $id = Craft::$app->getView()->formatInputId($this->handle);
         $namespacedId = Craft::$app->getView()->namespaceInputId($id);
 
-        // Variables to pass down to our field JavaScript to let it namespace properly
-        $jsonVars = [
-            'id' => $id,
-            'name' => $this->handle,
-            'namespace' => $namespacedId,
-            'prefix' => Craft::$app->getView()->namespaceInputId(''),
-            ];
-        $jsonVars = Json::encode($jsonVars);
-        Craft::$app->getView()->registerJs("$('#{$namespacedId}-field').TitoTitoEvent(" . $jsonVars . ");");
+        // Get all the upcoming events
+        $options = array_merge(['' => ''], Tito::getInstance()->api->eventTitles());
+
+        // Initialize the Selectize searchable drop-down
+        Craft::$app->getView()->registerJs(
+            "$('#{$namespacedId}-field .tito-event-field').selectize({allowEmptyOption:true});"
+        );
 
         // Render the input template
         return Craft::$app->getView()->renderTemplate(
@@ -111,6 +98,7 @@ class TitoEvent extends Field
             [
                 'name' => $this->handle,
                 'value' => $value,
+                'options' => $options,
                 'field' => $this,
                 'id' => $id,
                 'namespacedId' => $namespacedId,

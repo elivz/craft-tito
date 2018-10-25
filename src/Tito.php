@@ -70,6 +70,12 @@ class Tito extends Plugin
             }
         );
 
+        $this->setComponents(
+            [
+                'api' => \elivz\tito\services\Api::class,
+            ]
+        );
+
         Craft::info(
             Craft::t(
                 'tito',

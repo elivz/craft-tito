@@ -9,3 +9,7 @@
  * @package   Tito
  * @since     1.0.0
  */
+
+.tito-event-field {
+  width: 100%;
+}

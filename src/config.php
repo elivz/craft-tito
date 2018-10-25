@@ -24,6 +24,7 @@
 
 return [
 
-    "apiToken" => '',
+    'apiToken' => '',
+    'accountSlug' => '',
 
 ];

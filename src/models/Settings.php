@@ -29,6 +29,7 @@ class Settings extends Model
      * @var string
      */
     public $apiToken = '';
+    public $accountSlug = '';
 
     // Public Methods
     // =========================================================================
@@ -41,6 +42,8 @@ class Settings extends Model
         return [
             ['apiToken', 'string'],
             ['apiToken', 'default', 'value' => ''],
+            ['accountSlug', 'string'],
+            ['accountSlug', 'default', 'value' => ''],
         ];
     }
 }

@@ -15,8 +15,10 @@
 
 {% import "_includes/forms" as forms %}
 
-{{ forms.textField({
-    id: name,
-    name: name,
-    value: value})
-}}
+{# {% do view.registerAssetBundle("elivz\\tito\\assetbundles\\titoeventfield\\TitoEventFieldAsset") %} #}
+
+<select class="tito-event-field" id="{{ name }}" name="{{ name }}">
+    {% for key, label in options %}
+        <option value="{{ key }}"{% if (key~'') is same as (value~'') %} selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+</select>
