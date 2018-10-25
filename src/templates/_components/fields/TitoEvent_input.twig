@@ -1,0 +1,22 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Tito plugin for Craft CMS 3.x
+ *
+ * TitoEvent Field Input
+ *
+ * @author    Eli Van Zoeren
+ * @copyright Copyright (c) 2018 Eli Van Zoeren
+ * @link      https://elivz.com
+ * @package   Tito
+ * @since     1.0.0
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    id: name,
+    name: name,
+    value: value})
+}}

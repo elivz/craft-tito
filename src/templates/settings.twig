@@ -1,0 +1,24 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Tito plugin for Craft CMS 3.x
+ *
+ * Tito Settings.twig
+ *
+ * @author    Eli Van Zoeren
+ * @copyright Copyright (c) 2018 Eli Van Zoeren
+ * @link      https://elivz.com
+ * @package   Tito
+ * @since     1.0.0
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    label: 'API Token',
+    instructions: 'Get your token from <a href="https://id.tito.io">your profile page</a>.',
+    id: 'apiToken',
+    name: 'apiToken',
+    value: settings['apiToken']})
+}}

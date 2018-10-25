@@ -1,0 +1,43 @@
+{
+  "name": "elivz/craft-tito",
+  "description": "Get event information from Tito.io.",
+  "type": "craft-plugin",
+  "version": "1.0.0",
+  "keywords": [
+    "craft",
+    "cms",
+    "craftcms",
+    "craft-plugin",
+    "tito"
+  ],
+  "support": {
+    "docs": "https://github.com/elivz/craft-tito/blob/master/README.md",
+    "issues": "https://github.com/elivz/craft-tito/issues"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Eli Van Zoeren",
+      "homepage": "https://elivz.com"
+    }
+  ],
+  "require": {
+    "craftcms/cms": "^3.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "elivz\\tito\\": "src/"
+    }
+  },
+  "extra": {
+    "name": "Tito",
+    "handle": "tito",
+    "hasCpSettings": true,
+    "hasCpSection": false,
+    "changelogUrl": "https://raw.githubusercontent.com/elivz/craft-tito/master/CHANGELOG.md",
+    "components": {
+      "titoService": "elivz\\tito\\services\\TitoService"
+    },
+    "class": "elivz\\tito\\Tito"
+  }
+}
