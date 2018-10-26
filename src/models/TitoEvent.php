@@ -43,6 +43,11 @@ class TitoEvent extends Model
     /**
      * @var string
      */
+    public $url;
+
+    /**
+     * @var string
+     */
     public $accountId;
     
     /**
@@ -132,6 +137,7 @@ class TitoEvent extends Model
             ['eventId', 'string'],
             ['title', 'string'],
             ['slug', 'string'],
+            ['url', 'string'],
             ['accountId', 'string'],
             ['description', 'string'],
             ['startDate', 'date'],

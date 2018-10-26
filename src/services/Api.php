@@ -86,7 +86,7 @@ class Api extends Component
             'id' => $item['id'],
             'url' => $this->_eventUrl($item['id']),
         ];
-
+        
         foreach ($item['attributes'] as $key => $value) {
             $camelKey = StringHelper::camelCase($key);
             if (in_array($camelKey, ['startDate', 'endDate']) || $camelKey === 'startAt') {
@@ -94,12 +94,12 @@ class Api extends Component
             }
             $data[$camelKey] = $value;
         }
-
+        
         if ($removeHidden && ((isset($data['private']) && $data['private'] === true)  
-            || (isset($data['live']) && $data['live'] === false) 
-            || (isset($data['archived']) && $data['archived'] === true) 
-            || (isset($data['secret']) && $data['secret'] === true) 
-            || (isset($data['state']) && $data['state'] !== 'on_sale')            )
+        || (isset($data['live']) && $data['live'] === false) 
+        || (isset($data['archived']) && $data['archived'] === true) 
+        || (isset($data['secret']) && $data['secret'] === true) 
+        || (isset($data['state']) && $data['state'] !== 'on_sale')            )
         ) {
             return false;
         }
