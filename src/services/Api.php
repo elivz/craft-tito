@@ -96,10 +96,10 @@ class Api extends Component
         }
         
         if ($removeHidden && ((isset($data['private']) && $data['private'] === true)  
-        || (isset($data['live']) && $data['live'] === false) 
-        || (isset($data['archived']) && $data['archived'] === true) 
-        || (isset($data['secret']) && $data['secret'] === true) 
-        || (isset($data['state']) && $data['state'] !== 'on_sale')            )
+            || (isset($data['live']) && $data['live'] === false) 
+            || (isset($data['archived']) && $data['archived'] === true) 
+            || (isset($data['secret']) && $data['secret'] === true) 
+            || (isset($data['state']) && $data['state'] !== 'on_sale')            )
         ) {
             return false;
         }
@@ -121,12 +121,16 @@ class Api extends Component
 
         $response = $client->get('events');
         $response = json_decode($response->getBody()->getContents(), true);
-        $events = array_filter(array_map([$this, '_formatData'], $response['data']));
-        usort(
-            $events, function ($a, $b) {
-                return $a['startDate'] > $b['startDate'] ? 1 : -1;
-            }
-        );
+        if ($response['data']) {
+            $events = array_filter(array_map([$this, '_formatData'], $response['data']));
+            usort(
+                $events, function ($a, $b) {
+                    return $a['startDate'] > $b['startDate'] ? 1 : -1;
+                }
+            );
+        } else {
+            $events = [];
+        }
 
         return $events;
     }
@@ -164,7 +168,7 @@ class Api extends Component
 
         $response = $client->get($eventId . '?include=releases');
         $response = json_decode($response->getBody()->getContents(), true);
-        $event = $this->_formatData($response['data'], false);
+        $event = $response['data'] ? $this->_formatData($response['data'], false) : [];
 
         if (!empty($response['included'])) {
             $event['releases'] = array_filter(array_map([$this, '_formatData'], $response['included']));
